@@ -16,15 +16,19 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
     private String tag = MainActivity.class.getSimpleName();
     private RequestQueue requestQueue;
+    private ArrayList<WeatherInfo> cityWeatherArray ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestQueue = Volley.newRequestQueue(this);
+        cityWeatherArray = new ArrayList<>();
     }
 
     public void fetchOpenDataFun(View view){
@@ -56,9 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray location_arrayObj = records_jsonObj.getJSONArray("location");
                 Log.d(tag, "-----3.parseJSON location_arrayObj"+ location_arrayObj);
                 for(int i=0; i<location_arrayObj.length();i++){
+                    WeatherInfo weatherInfo = new WeatherInfo();
                     JSONObject area_jsonObj = location_arrayObj.getJSONObject(i);
                     String locationName = area_jsonObj.getString("locationName");
                     Log.d(tag, "-----4.parseJSON locationName"+ locationName);
+                    weatherInfo.setCity(locationName);
                     JSONArray weatherElement_arrayObj = area_jsonObj.getJSONArray("weatherElement");
                     Log.d(tag, "-----5.parseJSON weatherElement_arrayObj"+ weatherElement_arrayObj);
                     //只取weatherElement[0]的資料
@@ -67,12 +73,17 @@ public class MainActivity extends AppCompatActivity {
                     //只取time[0]的資料
                     JSONObject time_jsonObj = time_arrayObj.getJSONObject(0);
                     String endTime = time_jsonObj.getString("endTime");
+                    weatherInfo.setTime(endTime);
                     Log.d(tag, "-----6.parseJSON endTime"+ endTime);
                     JSONObject parameter_jsonObj = time_jsonObj.getJSONObject("parameter");
                     String weatherSituation = parameter_jsonObj.getString("parameterName");
                     Log.d(tag, "-----7.parseJSON weatherSituation"+ weatherSituation);
+                    weatherInfo.setWeather(weatherSituation);
+                    cityWeatherArray.add(weatherInfo);
                 }
-
+                for(WeatherInfo info:cityWeatherArray){
+                    Log.d(tag, "-----Result"+info.getCity()+":"+info.getTime()+":"+info.getWeather());
+                }
             }else{
                 Log.d(tag, "-----parseJSON 後端溝通失敗");
 
